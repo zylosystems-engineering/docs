@@ -1,217 +1,378 @@
-{
-  "openapi": "3.1.0",
-  "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
-      }
-    }
-  }
-}
+openapi: 3.0.3
+info:
+  title: Zylo Hub API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      summary: Check API Health Status
+      description: Retrieve the current health status of the API service.
+      operationId: checkApiHealthStatus
+      responses:
+        '200':
+          description: API is healthy and operational.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                healthyResponse:
+                  value:
+                    success: true
+                    data:
+                      status: healthy
+                    message: API is operational.
+  /auth/signup:
+    post:
+      tags:
+      - auth
+      summary: Register a New User
+      description: Create a new user account by providing an email and password.
+      operationId: registerNewUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signUpRequest'
+            examples:
+              example1:
+                value:
+                  email: user@example.com
+                  password: securePassword123
+              example2:
+                value:
+                  email: anotheruser@example.com
+                  password: anotherSecurePassword456
+              example3:
+                value:
+                  email: thirduser@example.com
+                  password: thirdSecurePassword789
+        required: true
+      responses:
+        '200':
+          description: User successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    data:
+                      userId: '12345'
+                      email: user@example.com
+                    message: User registered successfully.
+        '422':
+          description: Validation error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                validationErrorResponse:
+                  value:
+                    success: false
+                    data: null
+                    message: 'Validation error: email format is invalid.'
+  /auth/login:
+    post:
+      tags:
+      - auth
+      summary: Authenticate User
+      description: Log in a user by validating their email and password.
+      operationId: authenticateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginRequest'
+            examples:
+              example1:
+                value:
+                  email: user@example.com
+                  password: securePassword123
+              example2:
+                value:
+                  email: anotheruser@example.com
+                  password: anotherSecurePassword456
+              example3:
+                value:
+                  email: thirduser@example.com
+                  password: thirdSecurePassword789
+        required: true
+      responses:
+        '200':
+          description: User successfully authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    data:
+                      userId: '12345'
+                      accessToken: abc123
+                    message: User logged in successfully.
+        '422':
+          description: Validation error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                validationErrorResponse:
+                  value:
+                    success: false
+                    data: null
+                    message: 'Validation error: email or password is incorrect.'
+  /auth/logout:
+    post:
+      tags:
+      - auth
+      summary: Log Out User
+      description: Log out the currently authenticated user by invalidating their
+        session.
+      operationId: logOutUser
+      responses:
+        '200':
+          description: User successfully logged out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    data: null
+                    message: User logged out successfully.
+      security:
+      - HTTPBearer: []
+  /login/{provider}:
+    get:
+      tags:
+      - oauth
+      summary: Initiate OAuth Login
+      description: Start the OAuth login process with the specified provider.
+      operationId: initiateOAuthLogin
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        description: The OAuth provider to use for login.
+        schema:
+          type: string
+        example: google
+      responses:
+        '200':
+          description: OAuth login initiated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    data:
+                      redirectUrl: https://provider.com/oauth
+                    message: OAuth login initiated.
+        '422':
+          description: Validation error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                validationErrorResponse:
+                  value:
+                    success: false
+                    data: null
+                    message: 'Validation error: provider is not supported.'
+  /user/me:
+    get:
+      tags:
+      - user
+      summary: Retrieve Current User Profile
+      description: Get the profile information of the currently authenticated user.
+      operationId: retrieveCurrentUserProfile
+      responses:
+        '200':
+          description: Current user profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    data:
+                      userId: '12345'
+                      email: user@example.com
+                    message: User profile retrieved successfully.
+      security:
+      - HTTPBearer: []
+  /auth/callback:
+    get:
+      summary: Handle OAuth Callback
+      description: Process the callback from the OAuth provider after user authentication.
+      operationId: handleOAuthCallback
+      responses:
+        '200':
+          description: OAuth callback processed successfully.
+          content:
+            text/html:
+              schema:
+                type: string
+              examples:
+                successResponse:
+                  value: <html><body>OAuth callback successful.</body></html>
+  /auth/confirm:
+    get:
+      summary: Confirm Email Address
+      description: Confirm the user's email address using a verification link.
+      operationId: confirmEmailAddress
+      responses:
+        '200':
+          description: Email address confirmed successfully.
+          content:
+            text/html:
+              schema:
+                type: string
+              examples:
+                successResponse:
+                  value: <html><body>Email confirmed successfully.</body></html>
+  /documents/upload:
+    post:
+      tags:
+      - documentUpload
+      summary: Upload a Document
+      description: Upload a document file with metadata such as title, version, and
+        type.
+      operationId: uploadDocument
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/documentUploadRequest'
+            examples:
+              example1:
+                value:
+                  file: (binary data)
+                  title: API Documentation
+                  version: '1.0'
+                  doc_type: pdf
+              example2:
+                value:
+                  file: (binary data)
+                  title: User Guide
+                  version: '2.0'
+                  doc_type: docx
+              example3:
+                value:
+                  file: (binary data)
+                  title: Release Notes
+                  version: '3.0'
+                  doc_type: txt
+        required: true
+      responses:
+        '200':
+          description: Document uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    data:
+                      documentId: '67890'
+                    message: Document uploaded successfully.
+        '422':
+          description: Validation error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/standardResponse'
+              examples:
+                validationErrorResponse:
+                  value:
+                    success: false
+                    data: null
+                    message: 'Validation error: file type is not supported.'
+      security:
+      - HTTPBearer: []
+components:
+  schemas:
+    standardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the request was successful.
+        data:
+          type: object
+          nullable: true
+          description: Contains the actual response payload, or null on error.
+        message:
+          type: string
+          description: A human-readable message summarizing the result.
+      required:
+      - success
+      - message
+    signUpRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address of the user.
+        password:
+          type: string
+          description: The password for the user account.
+      required:
+      - email
+      - password
+    loginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address of the user.
+        password:
+          type: string
+          description: The password for the user account.
+      required:
+      - email
+      - password
+    documentUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: The document file to upload.
+        title:
+          type: string
+          description: The title of the document.
+        version:
+          type: string
+          description: The version of the document.
+        doc_type:
+          type: string
+          description: The type of the document (e.g., pdf, docx, txt).
+      required:
+      - file
+      - title
+      - version
+      - doc_type
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
